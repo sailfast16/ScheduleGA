@@ -1,0 +1,11 @@
+name = "ScheduleGA"
+uuid = "286b1262-2bed-11e9-1e1b-a1d9f0e42eff"
+authors = ["sailfast16 <jhurley8@my.uri.edu>"]
+version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+JSON2 = "2535ab7d-5cd8-5a07-80ac-9b1792aadce3"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
