@@ -1,6 +1,7 @@
 using Luxor
-using JSON2
 using Colors
+import JSON2.read
+
 
 function getSchedule(filename)
     schedule_list = []

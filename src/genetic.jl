@@ -1,5 +1,4 @@
 using Distributed
-using JSON2
 import Random.shuffle
 
 mutable struct Population
@@ -17,7 +16,7 @@ function Population(inds::Array{Array{Int64,1},1}, jobs::Vector{Job})
     return pop
 end
 
-function scoreIndividual(individual::Array{Int64,1}, jobs::Vector{Job})
+@everywhere function scoreIndividual(individual::Array{Int64,1}, jobs::Vector{Job})
     jobQueue = jobsToQueue(jobs, individual)
     lane_lengths = maximum([x.max_end for x in jobs])
     gen_score, num_lanes, _ = getFittness(jobQueue, lane_lengths)

@@ -4,7 +4,7 @@ using DataStructures
 function getJobs(filename::String)
     temp_dict = Dict()
     open(filename, "r") do f
-        dicttxt = String(read(f))
+        dicttxt = String(Base.read(f))
         temp_dict = JSON2.read(dicttxt)
     end
     jobs = [Job(job[:name], job[:least_start], job[:max_end], job[:length]) for job in temp_dict]
