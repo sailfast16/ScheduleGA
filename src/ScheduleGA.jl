@@ -1,13 +1,12 @@
 using JSON2
 using JLD
+using DelimitedFiles
 using ProgressMeter
 
 function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Float64, per_swap::Float64, per_mut::Float64)
     numJobs = length(jobs)
     pop = makePop(popSize, jobs)
     gen_times = zeros(Float64, numGens)
-
-    gen_individuals = zeros(Int64, numJobs, popSize, numGens)
     gen_scores = zeros(Int64, popSize, numGens)
     gen_lanes = zeros(Int64, popSize, numGens)
     total_time = 0
@@ -15,9 +14,6 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
     for i=1:numGens
         gen_scores[:,i] = pop.gen_scores
         gen_lanes[:,i] = pop.gen_lanes
-        for j = 1:length(pop.inds)
-            gen_individuals[:,j,i] = pop.inds[j]
-        end
 
         t0 = time_ns()
         breed!(pop, per_keep, per_swap, per_mut)
@@ -28,7 +24,7 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
         pop
     end
     print(pop.inds[1])
-    pop, (gen_times, gen_scores, gen_lanes, gen_individuals)
+    pop, (gen_times, gen_scores, gen_lanes)
 end
 
 function getOptSchedule(pop::Population)
@@ -59,8 +55,7 @@ function saveStats(stats, out_dir)
     gen_times = stats[1]
     gen_scores = stats[2]
     gen_lanes = stats[3]
-    gen_individuals = stats[4]
-    save(join([out_dir, "/stats.jld"]), "times", gen_times, "scores", gen_scores, "lanes", gen_lanes, "inds", gen_individuals)
+    save(join([out_dir, "/stats.jld"]), "times", gen_times, "scores", gen_scores, "lanes", gen_lanes)
 end
 
 function makeSchedule(out_dir)
@@ -68,6 +63,33 @@ function makeSchedule(out_dir)
     lanes, max_length = tasksToLanes(getSchedule(join([out_dir, "/schedule.json"])))
     drawSchedule(out_path, lanes, max_length)
 end
+
+function toGAMS(jobs, out_dir)
+    ais = []
+    bis = []
+    pis = []
+
+    for job in jobs
+        push!(ais, job.least_start)
+        push!(bis, job.max_end)
+        push!(pis, job.length)
+    end
+    ais = collect(enumerate(ais))
+    bis = collect(enumerate(bis))
+    pis = collect(enumerate(pis))
+
+    out = ais
+    push!(out, (1000000000, 1000000000))
+    out = vcat(out, bis)
+    push!(out, (1000000000, 1000000000))
+    out = vcat(out, pis)
+    push!(out, (1000000000, 1000000000))
+
+    open(join([out_dir,"/gams_file.csv"]),"w") do f
+        writedlm(f, out)
+    end
+end
+
 
 function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int64, numLoops::Int64, test_name::String)
     out_dir = join(["Output/",test_name])
@@ -78,9 +100,10 @@ function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int6
         run_dir = join([out_dir, "/run_$(i)"])
         mkdir(run_dir)
         jobs = shuffle(getJobs(job_file))[1:numJobs]
-        pop, stats = evolve(jobs, popSize, numGens, .2, .5, .2)
+        pop, stats = evolve(jobs, popSize, numGens, .6, .2, .2)
         saveSchedule(pop, run_dir)
         saveStats(stats, run_dir)
+        toGAMS(jobs, run_dir)
         makeSchedule(run_dir)
     end
 end

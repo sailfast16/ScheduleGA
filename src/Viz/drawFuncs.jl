@@ -7,7 +7,7 @@ function getSchedule(filename)
     schedule_list = []
     open(filename, "r") do f
         global schedule
-        dicttxt = String(read(f))
+        dicttxt = String(Base.read(f))
         schedule_list = JSON2.read(dicttxt)
     end
     schedule_list
