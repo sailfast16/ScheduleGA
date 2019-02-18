@@ -78,17 +78,29 @@ function toGAMS(jobs, out_dir)
     open(join([out_dir,"/gams_file.txt"]),"w") do f
         write(f, "aa(i) / \n")
         for i = 1:length(ais)
-            write(f, "$i $(ais[i]), \n")
+            if i == length(ais)
+                write(f, "$i $(ais[i]) \n")
+            else
+                write(f, "$i $(ais[i]), \n")
+            end
         end
         write(f, "/ \n \n")
         write(f, "b(i) / \n")
         for i = 1:length(bis)
-            write(f, "$i $(bis[i]), \n")
+            if i == length(bis)
+                write(f, "$i $(bis[i]) \n")
+            else
+                write(f, "$i $(bis[i]), \n")
+            end
         end
         write(f, "/ \n \n")
         write(f, "p(i) / \n")
         for i = 1:length(pis)
-            write(f, "$i $(pis[i]), \n")
+            if i == length(pis)
+                write(f, "$i $(pis[i]) \n")
+            else
+                write(f, "$i $(pis[i]), \n")
+            end
         end
         write(f, "/ \n")
     end
