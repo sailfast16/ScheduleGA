@@ -1,5 +1,5 @@
 using Distributed
-addprocs(Base.Sys.CPU_THREADS - 1)
+addprocs(Base.Sys.CPU_THREADS)
 
 @everywhere begin
     include("src/firstfit.jl")
@@ -19,4 +19,4 @@ num_loops = parse(Int64, args[3])
 dir_name = args[4]
 
 
-runLoop("Input/MS-20-78jobs.json", popSize, numGens, 78, num_loops, dir_name)
+runLoop("Input/MS-20-78jobs.json", popSize, numGens, 30, num_loops, dir_name)

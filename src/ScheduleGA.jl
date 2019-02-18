@@ -74,19 +74,23 @@ function toGAMS(jobs, out_dir)
         push!(bis, job.max_end)
         push!(pis, job.length)
     end
-    ais = collect(enumerate(ais))
-    bis = collect(enumerate(bis))
-    pis = collect(enumerate(pis))
 
-    out = ais
-    push!(out, (1000000000, 1000000000))
-    out = vcat(out, bis)
-    push!(out, (1000000000, 1000000000))
-    out = vcat(out, pis)
-    push!(out, (1000000000, 1000000000))
-
-    open(join([out_dir,"/gams_file.csv"]),"w") do f
-        writedlm(f, out)
+    open(join([out_dir,"/gams_file.txt"]),"w") do f
+        write(f, "aa(i) / \n")
+        for i = 1:length(ais)
+            write(f, "$i $(ais[i]), \n")
+        end
+        write(f, "/ \n \n")
+        write(f, "b(i) / \n")
+        for i = 1:length(bis)
+            write(f, "$i $(bis[i]), \n")
+        end
+        write(f, "/ \n \n")
+        write(f, "p(i) / \n")
+        for i = 1:length(pis)
+            write(f, "$i $(pis[i]), \n")
+        end
+        write(f, "/ \n")
     end
 end
 
