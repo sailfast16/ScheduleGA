@@ -8,6 +8,7 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
     pop = makePop(popSize, jobs)
     gen_times = zeros(Float64, numGens)
     gen_scores = zeros(Int64, popSize, numGens)
+    top_scores = zeros(Int64, numGens)
     gen_lanes = zeros(Int64, popSize, numGens)
     total_time = 0
     prog = Progress(numGens; dt=0.1, desc="Evolution In Progress... ", color=:green, barlen=50)
@@ -20,10 +21,11 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
         ellapsed = (time_ns() - t0)/1e9
         total_time += ellapsed
         gen_times[i] = ellapsed
+        top_scores[i] = pop.gen_scores[1]
         ProgressMeter.next!(prog; showvalues=[(:Generation, "$i out of $numGens"),(:GenTime, ellapsed), (:Fitness, pop.gen_scores[1]),(:Lanes, pop.gen_lanes[1])])
         pop
     end
-    print(pop.inds[1])
+    println(pop.inds[1])
     pop, (gen_times, gen_scores, gen_lanes)
 end
 
@@ -65,14 +67,24 @@ function makeSchedule(out_dir)
 end
 
 function toGAMS(jobs, out_dir)
+    job_ids = []
     ais = []
     bis = []
     pis = []
 
     for job in jobs
+        push!(job_ids, job.name)
         push!(ais, job.least_start)
         push!(bis, job.max_end)
         push!(pis, job.length)
+    end
+
+    max_load = maximum(bis)
+
+    open(join([out_dir,"/jobs_file.txt"]),"w") do f
+        for i = 1:length(job_ids)
+            write(f, "$(job_ids[i]) \n")
+        end
     end
 
     open(join([out_dir,"/gams_file.txt"]),"w") do f
@@ -104,10 +116,11 @@ function toGAMS(jobs, out_dir)
         end
         write(f, "/ \n")
     end
+    return max_load
 end
 
 
-function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int64, numLoops::Int64, test_name::String)
+function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int64, numLoops::Int64, test_name::String; make_graphs=true)
     out_dir = join(["Output/",test_name])
     mkdir(out_dir)
 
@@ -117,9 +130,18 @@ function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int6
         mkdir(run_dir)
         jobs = shuffle(getJobs(job_file))[1:numJobs]
         pop, stats = evolve(jobs, popSize, numGens, .6, .2, .2)
+        num_lanes = minimum(pop.gen_lanes)
         saveSchedule(pop, run_dir)
         saveStats(stats, run_dir)
-        toGAMS(jobs, run_dir)
+
+        if make_graphs
+            println("***********CREATING GRAPHS***********")
+            println(run_dir)
+            createGraphs(test_name, numLoops, run_dir)
+        end
+
+        max_load = toGAMS(jobs, run_dir)
         makeSchedule(run_dir)
+        run(Cmd(`gams scheduler.gms --NUM_TASKS=$numJobs --LANES_UB=$num_lanes --RUN=$i --TEST=$(test_name) --MAX_LOAD=$max_load`, ignorestatus=true, windows_verbatim=true))
     end
 end

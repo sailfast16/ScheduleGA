@@ -1,3 +1,6 @@
+using Plots 
+plotlyjs()
+
 using Distributed
 addprocs(Base.Sys.CPU_THREADS)
 
@@ -6,17 +9,16 @@ addprocs(Base.Sys.CPU_THREADS)
     include("src/fitness.jl")
 end
 
-include("src/Viz/drawFuncs.jl")
-include("src/Viz/viewSchedule.jl")
+args = Base.Sys.ARGS
 include("src/genetic.jl")
 include("src/ScheduleGA.jl")
-
-args = Base.Sys.ARGS
+include("src/Plotting/plotUtils.jl")
+include("src/Viz/drawFuncs.jl")
+include("src/Viz/viewSchedule.jl")
 
 popSize = parse(Int64, args[1])
 numGens = parse(Int64, args[2])
 num_loops = parse(Int64, args[3])
 dir_name = args[4]
 
-
-runLoop("Input/MS-20-78jobs.json", popSize, numGens, 30, num_loops, dir_name)
+runLoop("Input/Loose100Jobs.json", popSize, numGens, 30, num_loops, dir_name)
