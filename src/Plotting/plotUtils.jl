@@ -10,7 +10,7 @@ function addStatsRibbon(time_stats, α, bandwidth)
         ribbon = (bandwidth*smooth_std, bandwidth*smooth_std),
         lw=3,
         la=1,
-        xlims=(-10,260),
+        xlims=(-10,560),
         lab = "Avg. Time (Smoothed)",
         hover=smooth_avg,
         color=:orange)
@@ -26,7 +26,7 @@ function scatterTime(gen_times, time_stats, loc)
         ylabel="Time [Seconds]",
         title="Time per Generation",
         lab="Run 1",
-        xlims=(-10,260),
+        xlims=(-10,560),
         palette=:RdYlBu,
         hover=gen_times[1])
 
@@ -89,7 +89,7 @@ function scatterScores(gen_scores, loc)
         ylabel="Min. Generation Score",
         title="Generation Scores",
         lab="Run 1",
-        xlims=(-10,260),
+        xlims=(-10,560),
         palette=:RdYlBu,
         hover=gen_scores[1])
 
@@ -114,7 +114,7 @@ function lineScores(gen_scores, loc)
         ylabel="Min. Generation Score",
         title="Generation Scores",
         lab="Run 1",
-        xlims=(-10,260),
+        xlims=(-10,560),
         lw=3,
         la=.5,
         palette=:RdYlBu,

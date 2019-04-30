@@ -2,6 +2,34 @@ using Luxor
 using Colors
 import JSON2.read
 
+function parse_lines(gams_out, out_dir)
+    json_out = []
+
+    f = open(gams_out)
+    lines = readlines(f)
+
+    for line in lines
+        split_line = split(line, " ", keepempty=false)
+
+        if parse(Float64, split_line[3]) == 1
+            task = Dict()
+            task["job"] = Dict()
+            task["job"]["name"] = parse(Int, split_line[1])
+            task["job"]["length"] = Int(parse(Float64, split_line[5]))
+            task["lane_id"] = parse(Int, split_line[2])
+            task["start"] = Int(parse(Float64, split_line[4]))
+            task["fin"] = task["start"] + task["job"]["length"]
+
+            push!(json_out, task)
+        end
+        json_out
+    end
+
+    out_path = join([out_dir,"/schedule_gams.json"])
+    open(out_path, "w") do f
+        JSON2.write(f, json_out)
+    end
+end
 
 function getSchedule(filename)
     schedule_list = []
@@ -60,6 +88,12 @@ function tasksToLanes(schedule_list)
 
     for i = 1:length(lanes)
         lanes[i] = sortTasks(lanes[i])
+    end
+
+    for lane in lanes
+        if length(lane) == 0
+            deleteat!(lanes, findin(lanes, [lane]))
+        end
     end
 
     lanes, max_length

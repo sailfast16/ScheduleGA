@@ -58,9 +58,9 @@ mcuse(k).. sum(i,x(i,k)) =l= %LANES_UB%*M(k);
 Model schedule / obj,before,after,start,end,assign,mcuse,load /;
 
 solve schedule using mip minimizing w;
-File results /C:\Users\jackh\Documents\Hurley\ScheduleGA\Output\%TEST%\run_%RUN%\gams_out.csv/;
+File results /C:\Users\jackh\Documents\Hurley\ScheduleGA\Output\%TEST%\run_%RUN%\gams_out.txt/;
 put results;
-loop((i,k), put i.tl, k.tl, x.l(i,k), s.l(i,k), p(i) /)
+loop((i,k), put i.tl, k.tl, x(i), s.l(i,k) /)
 putclose results;
 
 display x.l;

@@ -66,6 +66,14 @@ function makeSchedule(out_dir)
     drawSchedule(out_path, lanes, max_length)
 end
 
+function makeScheduleGams(out_dir)
+    out_path = join([out_dir,"/viz_gams.png"])
+    gams_dir = join([out_dir, "/gams_out.csv"])
+    parse_lines(gams_dir, out_dir)
+    lanes, max_length = tasksToLanes(getSchedule(join([out_dir, "/schedule_gams.json"])))
+    drawSchedule(out_path, lanes, max_length)
+end
+
 function toGAMS(jobs, out_dir)
     job_ids = []
     ais = []
@@ -137,11 +145,12 @@ function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int6
         if make_graphs
             println("***********CREATING GRAPHS***********")
             println(run_dir)
-            createGraphs(test_name, numLoops, run_dir)
+            createGraphs(test_name, i, run_dir)
         end
 
         max_load = toGAMS(jobs, run_dir)
         makeSchedule(run_dir)
         run(Cmd(`gams scheduler.gms --NUM_TASKS=$numJobs --LANES_UB=$num_lanes --RUN=$i --TEST=$(test_name) --MAX_LOAD=$max_load`, ignorestatus=true, windows_verbatim=true))
+        makeScheduleGams(run_dir)
     end
 end
