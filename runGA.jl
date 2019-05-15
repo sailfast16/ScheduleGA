@@ -1,4 +1,4 @@
-using Plots 
+using Plots
 plotlyjs()
 
 using Distributed
@@ -21,4 +21,4 @@ numGens = parse(Int64, args[2])
 num_loops = parse(Int64, args[3])
 dir_name = args[4]
 
-runLoop("Input/Loose100Jobs.json", popSize, numGens, 30, num_loops, dir_name)
+runLoop("Input/Loose100Jobs.json", popSize, numGens, 50, num_loops, dir_name)

@@ -4,7 +4,7 @@ import Random.shuffle
 mutable struct Population
     jobs::Array{Job}
     inds::Array{Array{Int64,1},1}
-    gen_scores::Array{Int64,1}
+    gen_scores::Array{Float64,1}
     gen_lanes::Array{Int64,1}
 end
 

@@ -90,12 +90,6 @@ function tasksToLanes(schedule_list)
         lanes[i] = sortTasks(lanes[i])
     end
 
-    for lane in lanes
-        if length(lane) == 0
-            deleteat!(lanes, findin(lanes, [lane]))
-        end
-    end
-
     lanes, max_length
 end
 

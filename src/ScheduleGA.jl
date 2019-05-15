@@ -7,8 +7,8 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
     numJobs = length(jobs)
     pop = makePop(popSize, jobs)
     gen_times = zeros(Float64, numGens)
-    gen_scores = zeros(Int64, popSize, numGens)
-    top_scores = zeros(Int64, numGens)
+    gen_scores = zeros(Float64, popSize, numGens)
+    top_scores = zeros(Float64, numGens)
     gen_lanes = zeros(Int64, popSize, numGens)
     total_time = 0
     prog = Progress(numGens; dt=0.1, desc="Evolution In Progress... ", color=:green, barlen=50)
