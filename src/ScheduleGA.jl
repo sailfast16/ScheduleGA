@@ -25,7 +25,7 @@ function evolve(jobs::Array{Job,1}, popSize::Int64, numGens::Int64, per_keep::Fl
         ProgressMeter.next!(prog; showvalues=[(:Generation, "$i out of $numGens"),(:GenTime, ellapsed), (:Fitness, pop.gen_scores[1]),(:Lanes, pop.gen_lanes[1])])
         pop
     end
-    println(pop.inds[1])
+
     pop, (gen_times, gen_scores, gen_lanes)
 end
 
@@ -128,7 +128,7 @@ function toGAMS(jobs, out_dir)
 end
 
 
-function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int64, numLoops::Int64, test_name::String; make_graphs=true)
+function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int64, numLoops::Int64, test_name::String; make_graphs=true, run_gams=true)
     out_dir = join(["Output/",test_name])
     mkdir(out_dir)
 
@@ -144,13 +144,15 @@ function runLoop(job_file::String, popSize::Int64, numGens::Int64, numJobs::Int6
 
         if make_graphs
             println("***********CREATING GRAPHS***********")
-            println(run_dir)
             createGraphs(test_name, i, run_dir)
         end
 
         max_load = toGAMS(jobs, run_dir)
         makeSchedule(run_dir)
-        run(Cmd(`gams scheduler.gms --NUM_TASKS=$numJobs --LANES_UB=$num_lanes --RUN=$i --TEST=$(test_name) --MAX_LOAD=$max_load`, ignorestatus=true, windows_verbatim=true))
-        makeScheduleGams(run_dir)
+
+        if run_gams
+            run(Cmd(`gams scheduler.gms --NUM_TASKS=$numJobs --LANES_UB=$num_lanes --RUN=$i --TEST=$(test_name) --MAX_LOAD=$max_load`, ignorestatus=true, windows_verbatim=true))
+            makeScheduleGams(run_dir)
+        end
     end
 end

@@ -59,8 +59,17 @@ function sortTasks(lane)
     return lane
 end
 
+function sortLanes(lanes, unused_fracs)
+    sort_idx = sortperm(unused_fracs)
+    new_lanes = [lanes[i] for i in sort_idx]
+    print(sort_idx)
+    return new_lanes
+end
+
 function tasksToLanes(schedule_list)
     lanes = []
+    amt_used = zeros(getNumLanes(schedule_list))
+
     max_length = 0
 
     for lane_num = 1:getNumLanes(schedule_list)
@@ -78,6 +87,7 @@ function tasksToLanes(schedule_list)
                 temp_task[:fin] = task[:fin]
 
                 push!(lanes[lane_num], temp_task)
+                amt_used[lane_num]+=task[:job][:length]
 
                 if temp_task[:fin] > max_length
                     max_length = temp_task[:fin]
@@ -86,9 +96,13 @@ function tasksToLanes(schedule_list)
         end
     end
 
+    unused_fracs = (max_length .- amt_used) ./ max_length
+
     for i = 1:length(lanes)
         lanes[i] = sortTasks(lanes[i])
     end
+
+    lanes[:] = sortLanes(lanes, unused_fracs)
 
     lanes, max_length
 end

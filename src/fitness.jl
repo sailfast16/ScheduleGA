@@ -1,5 +1,6 @@
 using JSON2
 using DataStructures
+using MLPreprocessing
 
 function getJobs(filename::String)
     temp_dict = Dict()
@@ -108,16 +109,20 @@ function getFittness(jobQueue::PriorityQueue, lane_lengths::Int64)
 
     # calculate the fraction of unused space in each lane
     lane_unused_fracs = (max_length .- lane_used_amounts) ./ max_length
-
-    for i = 1:length(lane_unused_fracs)
-        if lane_unused_fracs[i] <= 0
-            lane_unused_fracs[i] == 1
-        end
-    end
+    lane_unused_fracs = transform_values(lane_unused_fracs, 1,2)
 
     # calculate the sum product of the fraction list
-    fitness = (accumulate(+, lane_unused_fracs)[end])
-
+    fitness = (accumulate(*, lane_unused_fracs)[end]) * (max_length * length(lane_unused_fracs))
 
     return fitness, num_lanes, schedule
+end
+
+function transform_values(values, lb, ub)
+    xmin = minimum(values)
+    xmax = maximum(values)
+    xrange = xmax - xmin
+
+    scale = ub - lb
+
+    values = lb .+ (values .- xmin) ./ xrange * scale
 end

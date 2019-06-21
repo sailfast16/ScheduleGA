@@ -63,5 +63,11 @@ put results;
 loop((i,k), put i.tl, k.tl, x.l(i,k), s.l(i,k), p(i) /)
 putclose results;
 
+File moshen /C:\Users\jackh\Documents\Hurley\ScheduleGA\Output\%TEST%\run_%RUN%\moshen.csv/;
+put moshen;
+loop((i,j,k), put z.l(i,j,k) /)
+putclose moshen;
+
 display x.l;
 display s.l;
+display z.l;

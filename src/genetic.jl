@@ -13,6 +13,7 @@ function Population(inds::Array{Array{Int64,1},1}, jobs::Vector{Job})
 
     pop = Population(jobs, inds, [x[1] for x in gen_stats], [x[2] for x in gen_stats])
     sortPop!(pop)
+
     return pop
 end
 
@@ -20,6 +21,7 @@ end
     jobQueue = jobsToQueue(jobs, individual)
     lane_lengths = maximum([x.max_end for x in jobs])
     gen_score, num_lanes, _ = getFittness(jobQueue, lane_lengths)
+
     return gen_score, num_lanes
 end
 
@@ -53,6 +55,16 @@ function makePop(popSize::Int64, jobs::Vector{Job})
     Population(inds, jobs)
 end
 
+function transform_values(values, lb, ub)
+    xmin = minimum(values)
+    xmax = maximum(values)
+    xrange = xmax - xmin
+
+    scale = ub - lb
+
+    values = lb .+ (values .- xmin) ./ xrange * scale
+end
+
 function getParents(pop::Population, per_keep::Float64)
     popSize = length(pop.inds)
     numJobs = length(pop.inds[1])
@@ -63,8 +75,8 @@ function getParents(pop::Population, per_keep::Float64)
 
     nparents = 0
     while nparents < popSize2
-        test_lo = minimum(pop.gen_scores)
         test_hi = maximum(pop.gen_scores)
+        test_lo = minimum(pop.gen_scores)
         jtest = rand(1:popSize)
         leveltest = rand(test_lo:test_hi)
         if pop.gen_scores[jtest] <= leveltest
